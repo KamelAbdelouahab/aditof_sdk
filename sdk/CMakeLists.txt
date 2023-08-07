@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 project(aditof)
 
 add_definitions(-DSDK_EXPORTS)
-find_package(glog 0.3.5 REQUIRED)
+if (NOT WITH_JS)
+    find_package(glog 0.3.5 REQUIRED)
+endif()
 
 #Enables the use of assert() from <assert.h> only in Debug mode.
 if ( NOT CMAKE_BUILD_TYPE STREQUAL "Debug" )
@@ -121,8 +123,8 @@ file(GLOB NETWORK_HEADERS
 # Create target and set properties
 add_library(${PROJECT_NAME} SHARED
     ${SOURCES}
-    ${PLATFORM_SOURCES}
-    ${PLATFORM_HEADERS}
+    $<$<NOT:$<BOOL:${WITH_JS}>>:${PLATFORM_SOURCES}>
+    $<$<NOT:$<BOOL:${WITH_JS}>>:${PLATFORM_HEADERS}>
     $<$<BOOL:${ON_TARGET}>:${ONE_CAMERA_SOURCES}>
     $<$<BOOL:${ON_TARGET}>:${ONE_CAMERA_HEADERS}>
     $<$<NOT:$<BOOL:${ON_TARGET}>>:${ALL_CAMERAS_SOURCES}>
@@ -157,19 +159,21 @@ set_target_properties( ${PROJECT_NAME} PROPERTIES
                        CXX_STANDARD 11
 )
 
-if ( WITH_NETWORK )
-    target_link_libraries( ${PROJECT_NAME}
-        PUBLIC
-            glog::glog
-        PRIVATE
-            ${Protobuf_LIBRARIES}
-            ${LIBWEBSOCKETS_LIBRARIES}
-    )
-else()
-    target_link_libraries( ${PROJECT_NAME}
-        PUBLIC
-            glog::glog
-    )
+if (NOT WITH_JS)
+    if ( WITH_NETWORK )
+        target_link_libraries( ${PROJECT_NAME}
+            PUBLIC
+                glog::glog
+            PRIVATE
+                ${Protobuf_LIBRARIES}
+                ${LIBWEBSOCKETS_LIBRARIES}
+        )
+    else()
+        target_link_libraries( ${PROJECT_NAME}
+            PUBLIC
+                glog::glog
+        )
+    endif()    
 endif()
 
 if (CMAKE_COMPILER_IS_GNUCC)
@@ -183,7 +187,11 @@ if (CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 if ( RASPBERRYPI )
-    set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -mfpu=neon -latomic")
+    if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -latomic")
+    else()
+        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -mfpu=neon -latomic")
+    endif()
     include (${CMAKE_SOURCE_DIR}/cmake/raspberrypi-revision-config.cmake)
 endif()
 
@@ -198,6 +206,20 @@ if( APPLE )
     endif( NOT LIBUVC_LIB)
     target_link_libraries( ${PROJECT_NAME} PRIVATE ${LIBUVC_LIB})
 endif( APPLE )
+
+#Systems that don't have builtin atomics, or don't have 8byte support need libatomic linking
+if (UNIX)
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles("
+        #include <atomic>
+            return std::atomic<int64_t>{};
+        }
+        " HAVE_BUILTIN_ATOMICS)
+
+    if (NOT HAVE_BUILTIN_ATOMICS)
+        target_link_libraries(${PROJECT_NAME} PUBLIC atomic)
+    endif()
+endif()
 
 # includes install paths
 include(GNUInstallDirs)

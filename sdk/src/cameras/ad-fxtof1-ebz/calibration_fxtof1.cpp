@@ -34,7 +34,12 @@
 #include "basecode.h"
 
 #include <algorithm>
+#ifndef JS_BINDINGS
 #include <glog/logging.h>
+#else
+#include <aditof/log_cout.h>
+#include <cstring>
+#endif
 #include <math.h>
 
 #define MODE_CFG_SIZE 256
@@ -283,8 +288,8 @@ aditof::Status CalibrationFxTof1::setMode(
     std::vector<float> distortionCoeffs;
     uint16_t mode_id = (mode == "near" ? 0 : 1);
     const int16_t pixelMaxValue = (1 << 12) - 1; // 4095
-    float gain = (mode == "near" ? 0.5 : 1.15);
-    float offset = 0.0;
+    float gain = (mode == "near" ? 0.5f : 1.15f);
+    float offset = 0.0f;
 
     buildDepthCalibrationCache(gain, offset, pixelMaxValue, range);
     m_range = range;
@@ -489,8 +494,8 @@ aditof::Status CalibrationFxTof1::distortionCorrection(uint16_t *frame,
             int x_dist = (int)(x_dist_adim * fx + cx);
             int y_dist = (int)(y_dist_adim * fy + cy);
 
-            if (x_dist >= 0 && x_dist < width && y_dist >= 0 &&
-                y_dist < height) {
+            if (x_dist >= 0 && x_dist < (int)width && y_dist >= 0 &&
+                y_dist < (int)height) {
                 buff[j * width + i] = frame[y_dist * width + x_dist];
             } else {
                 buff[j * width + i] = frame[j * width + i];

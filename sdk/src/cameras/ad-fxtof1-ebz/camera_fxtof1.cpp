@@ -41,7 +41,11 @@
 #include <algorithm>
 #include <array>
 #include <fstream>
+#ifndef JS_BINDINGS
 #include <glog/logging.h>
+#else
+#include <aditof/log_cout.h>
+#endif
 #include <iterator>
 #include <map>
 #include <math.h>
@@ -201,8 +205,8 @@ aditof::Status CameraFxTof1::initialize() {
                                m_details.intrinsics.distCoeffs);
 
     // For now we use the unit cell size values specified in the datasheet
-    m_details.intrinsics.pixelWidth = 0.0056;
-    m_details.intrinsics.pixelHeight = 0.0056;
+    m_details.intrinsics.pixelWidth = 0.0056f;
+    m_details.intrinsics.pixelHeight = 0.0056f;
     return Status::OK;
 }
 
@@ -309,7 +313,7 @@ aditof::Status CameraFxTof1::setMode(const std::string &mode,
     }
 #endif
 
-    m_details.depthParameters.depthGain = (mode == "near" ? 0.5 : 1.15);
+    m_details.depthParameters.depthGain = (mode == "near" ? 0.5f : 1.15f);
     m_details.depthParameters.depthOffset = 0.0f;
     m_details.mode = mode;
     return status;

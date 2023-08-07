@@ -32,7 +32,12 @@
 #include "usb_linux_utils.h"
 
 #include <errno.h>
+#ifndef JS_BINDINGS
 #include <glog/logging.h>
+#else
+#include <aditof/log_cout.h>
+#include <cstring>
+#endif
 #include <linux/usb/video.h>
 #include <linux/uvcvideo.h>
 #include <sys/ioctl.h>
@@ -211,10 +216,10 @@ int UsbLinuxUtils::uvcExUnitWriteBuffer(int fd, uint8_t selector, int16_t id,
     cq.selector = selector;
 
     while (writtenBytes < bufferLength) {
-        writeLen =
-            bufferLength - writtenBytes > MAX_BUF_SIZE - (nbLeadingBytes + 1)
-                ? MAX_BUF_SIZE - (nbLeadingBytes + 1)
-                : bufferLength - writtenBytes;
+        writeLen = (int)(bufferLength - writtenBytes) >
+                           MAX_BUF_SIZE - (nbLeadingBytes + 1)
+                       ? MAX_BUF_SIZE - (nbLeadingBytes + 1)
+                       : bufferLength - writtenBytes;
         packet[nbLeadingBytes] = writeLen;
         memcpy(&packet[nbLeadingBytes + 1], data + writtenBytes, writeLen);
 

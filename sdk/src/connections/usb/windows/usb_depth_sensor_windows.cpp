@@ -35,7 +35,11 @@
 #include "device_utils.h"
 
 #include <atlstr.h>
+#ifndef JS_BINDINGS
 #include <glog/logging.h>
+#else
+#include <aditof/log_cout.h>
+#endif
 #include <unordered_map>
 
 struct CalibrationData {
@@ -641,9 +645,6 @@ aditof::Status UsbDepthSensor::getFrame(uint16_t *buffer,
 
     int retryCount = 0;
     HRESULT hr;
-    int i, j;
-    unsigned int offset[2];
-    unsigned int offset_idx;
 
     unsigned short *tmpbuffer = nullptr;
 

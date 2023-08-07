@@ -34,7 +34,12 @@
 #include "basecode.h"
 
 #include <algorithm>
+#ifndef JS_BINDINGS
 #include <glog/logging.h>
+#else
+#include <aditof/log_cout.h>
+#include <cstring>
+#endif
 #include <math.h>
 
 #define MODE_CFG_SIZE 256
@@ -282,7 +287,7 @@ aditof::Status Calibration3D_Smart::setMode(
     std::vector<float> distortionCoeffs;
     uint16_t mode_id = (mode == "near" ? 0 : 1);
     const int16_t pixelMaxValue = (1 << 12) - 1; // 4095
-    float gain = (mode == "near" ? 0.5 : 1.15);
+    float gain = (mode == "near" ? 0.5f : 1.15f);
     float offset = 0.0;
 
     buildDepthCalibrationCache(gain, offset, pixelMaxValue, range);

@@ -38,7 +38,11 @@
 #include <algorithm>
 #include <array>
 #include <fstream>
+#ifndef JS_BINDINGS
 #include <glog/logging.h>
+#else
+#include <aditof/log_cout.h>
+#endif
 #include <iterator>
 #include <map>
 #include <math.h>
@@ -212,8 +216,8 @@ aditof::Status Camera96Tof1::initialize() {
                                m_details.intrinsics.distCoeffs);
 
     // For now we use the unit cell size values specified in the datasheet
-    m_details.intrinsics.pixelWidth = 0.0056;
-    m_details.intrinsics.pixelHeight = 0.0056;
+    m_details.intrinsics.pixelWidth = 0.0056f;
+    m_details.intrinsics.pixelHeight = 0.0056f;
     return Status::OK;
 }
 

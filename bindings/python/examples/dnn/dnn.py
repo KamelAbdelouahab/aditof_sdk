@@ -56,15 +56,17 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description='Script to run MobileNet-SSD object detection network ')
-    parser.add_argument("--prototxt", default="MobileNetSSD_deploy.prototxt",
+    parser.add_argument('-p', "--prototxt", default="MobileNetSSD_deploy.prototxt",
                         help='Path to text network file: '
                              'MobileNetSSD_deploy.prototxt')
-    parser.add_argument("--weights", default="MobileNetSSD_deploy.caffemodel",
+    parser.add_argument('-w', "--weights", default="MobileNetSSD_deploy.caffemodel",
                         help='Path to weights: '
                              'MobileNetSSD_deploy.caffemodel')
-    args = parser.parse_args()
+    parser.add_argument('-i', "--ip", help='Ip address to use network backend')
+    args = vars(parser.parse_args())
+
     try:
-        net = cv.dnn.readNetFromCaffe(args.prototxt, args.weights)
+        net = cv.dnn.readNet(args["prototxt"], args["weights"])
     except:
         print("Error: Please give the correct location of the prototxt and caffemodel")
         sys.exit(1)
@@ -78,11 +80,21 @@ if __name__ == "__main__":
                   17: 'sheep', 18: 'sofa', 19: 'train', 20: 'tvmonitor'}
 
     system = tof.System()
+    print(system)
 
     cameras = []
-    status = system.getCameraList(cameras)
+    if args["ip"]:
+        status = system.getCameraListAtIp(cameras, args["ip"])
+        if not status:
+            print("system.getCameraListAtIp() failed with status: ", status)
+    else:
+        status = system.getCameraList(cameras)
+        if not status:
+            print("system.getCameraList() failed with status: ", status)
+
+    status = cameras[0].initialize()
     if not status:
-        print("system.getCameraList() failed with status: ", status)
+        print("cameras[0].initialize() failed with status: ", status)
 
     modes = []
     status = cameras[0].getAvailableModes(modes)
@@ -93,10 +105,6 @@ if __name__ == "__main__":
     status = cameras[0].getAvailableFrameTypes(types)
     if not status:
         print("system.getAvailableFrameTypes() failed with status: ", status)
-
-    status = cameras[0].initialize()
-    if not status:
-        print("cameras[0].initialize() failed with status: ", status)
 
     status = cameras[0].setFrameType(types[0])
     if not status:
@@ -123,6 +131,11 @@ if __name__ == "__main__":
     distance_scale_ir = 255.0 / max_value_of_IR_pixel
     distance_scale = 255.0 / camera_range
 
+    frameDetails = tof.FrameDetails()
+    status = frame.getDetails(frameDetails)
+    print("frame.getDetails()", status)
+    print("frame details:", "width:", frameDetails.width, "height:", frameDetails.height, "type:", frameDetails.type)
+
     while True:
         # Capture frame-by-frame
         status = cameras[0].requestFrame(frame)
@@ -133,15 +146,14 @@ if __name__ == "__main__":
         ir_map = np.array(frame.getData(tof.FrameDataType.IR), dtype="uint16", copy=False)
 
         # Creation of the IR image
-        ir_map = ir_map[0: int(ir_map.shape[0] / 2), :]
-        ir_map = distance_scale_ir * ir_map
+        ir_map = ir_map[0: frameDetails.height, 0: frameDetails.width]
+        ir_map = ir_map * distance_scale_ir
         ir_map = np.uint8(ir_map)
         ir_map = cv.flip(ir_map, 1)
         ir_map = cv.cvtColor(ir_map, cv.COLOR_GRAY2RGB)
 
         # Creation of the Depth image
-        new_shape = (int(depth_map.shape[0] / 2), depth_map.shape[1])
-        depth_map = np.resize(depth_map, new_shape)
+        depth_map = depth_map[0: frameDetails.height, 0: frameDetails.width]
         depth_map = cv.flip(depth_map, 1)
         distance_map = depth_map
         depth_map = distance_scale * depth_map
@@ -149,7 +161,7 @@ if __name__ == "__main__":
         depth_map = cv.applyColorMap(depth_map, cv.COLORMAP_RAINBOW)
 
         # Combine depth and IR for more accurate results
-        result = cv.addWeighted(ir_map, 0.4, depth_map, 0.6, 0)
+        result = cv.addWeighted(ir_map, 0.4 , depth_map, 0.6 , 0)
 
         # Start the computations for object detection using DNN
         blob = cv.dnn.blobFromImage(result, inScaleFactor, (inWidth, inHeight), (meanVal, meanVal, meanVal), swapRB)
@@ -197,7 +209,7 @@ if __name__ == "__main__":
 
                 if class_id in classNames:
                     label_depth = classNames[class_id] + ": " + \
-                            "{0:.3f}".format(distance_map[value_x, value_y] / 1000.0) + " meters"
+                                  "{0:.3f}".format(distance_map[value_x, value_y] / 1000.0) + " meters"
                     label_conf = "Confidence: " + "{0:.4f}".format(confidence)
                     labelSize_depth, baseLine = cv.getTextSize(label_depth, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
                     labelSize_conf = cv.getTextSize(label_conf, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
@@ -219,7 +231,7 @@ if __name__ == "__main__":
                     cv.rectangle(depth_map, (value_x - int(labelSize[0] * 0.5), yLeftBottom),
                                  (value_x + int(labelSize[0] * 0.5), yLeftBottom + 2 * labelSize[1] + 2 * baseLine),
                                  (255, 255, 255), cv.FILLED)
-                    cv.putText(depth_map, label_depth, (value_x - int(labelSize[0] * 0.5),  yLeftBottom + labelSize[1]),
+                    cv.putText(depth_map, label_depth, (value_x - int(labelSize[0] * 0.5), yLeftBottom + labelSize[1]),
                                cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0))
                     cv.putText(depth_map, label_conf, (value_x - int(labelSize[0] * 0.5), yLeftBottom + 2 * labelSize[1]
                                                        + baseLine),

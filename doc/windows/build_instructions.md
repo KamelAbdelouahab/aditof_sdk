@@ -4,7 +4,8 @@
 ## Building the SDK only
 
 ### Pre-requisites
-* Install MS Visual Studio 16 2019
+* Install MS Visual Studio 16 2019 or Visual Studio 17 2022
+> NOTE: The sdk can be built with both of these IDEs. If you use the second one, just change '16 2019' to '17 2022' wherever it's necessary.
 * Install MS .NET Framework 4.5
 * CMake
 * Glog v0.3.5
@@ -22,10 +23,10 @@ Windows installer can be downloaded from: https://cmake.org/download/
 
 * Glog:
 ```console
-git clone --branch v0.3.5 --depth 1 https://github.com/google/glog
+git clone --branch v0.6.0 --depth 1 https://github.com/google/glog
 cd glog
 mkdir build_0_3_5 && cd build_0_3_5
-cmake -DWITH_GFLAGS=off -DCMAKE_INSTALL_PREFIX=./local_path/glog -G "Visual Studio 16 2019" ..
+cmake -DWITH_GFLAGS=off -DCMAKE_INSTALL_PREFIX=".\local_path\glog" -G "Visual Studio 16 2019" ..
 cmake --build . --target install --config Debug -j 4
 cmake --build . --target install --config Release -j 4
 ```
@@ -36,7 +37,7 @@ Libewbesockets needs OpenSSL. One option to get it on windows is from: https://s
 git clone --branch v3.2.3 --depth 1 https://github.com/warmcat/libwebsockets
 cd libwebsockets
 mkdir build_3_2_3 && cd build_3_2_3
-cmake -DOPENSSL_ROOT_DIR="C:\OpenSSL-Win64" -DCMAKE_INSTALL_PREFIX=./local_path/websockets -G "Visual Studio 16 2019" ..
+cmake -DOPENSSL_ROOT_DIR="C:\OpenSSL-Win64" -DCMAKE_INSTALL_PREFIX=".\local_path\websockets" -G "Visual Studio 16 2019" ..
 cmake --build . --target install --config Debug -j 4
 cmake --build . --target install --config Release -j 4
 ```
@@ -46,7 +47,7 @@ cmake --build . --target install --config Release -j 4
 git clone --branch v3.9.0 --depth 1 https://github.com/protocolbuffers/protobuf
 cd protobuf
 mkdir build_3_9_0 && cd build_3_9_0
-cmake -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -DCMAKE_INSTALL_PREFIX=./local_path/protobuf -G "Visual Studio 16 2019" ../cmake
+cmake -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -DCMAKE_INSTALL_PREFIX=".\local_path\protobuf" -G "Visual Studio 16 2019" ../cmake
 cmake --build . --target install --config Debug -j 4
 cmake --build . --target install --config Release -j 4
 ```
@@ -58,9 +59,10 @@ git clone https://github.com/analogdevicesinc/aditof_sdk
 cd aditof_sdk
 mkdir build
 cd build
-cmake -DCMAKE_PREFIX_PATH="C:\projects\aditof-sdk\deps\glog\build_0_3_5\local_path\glog;C:\projects\aditof-sdk\deps\protobuf\build_3_9_0\local_path\protobuf;C:\projects\aditof-sdk\deps\libwebsockets\build_3_2_3\local_path\websockets" -G "Visual Studio 16 2019" -DOPENSSL_INCLUDE_DIRS="C:\OpenSSL-Win64\include" -DWITH_EXAMPLES=off ..
+cmake -DCMAKE_PREFIX_PATH="C:\projects\aditof_sdk\deps\glog\build_0_3_5\local_path\glog;C:\projects\aditof_sdk\deps\protobuf\build_3_9_0\local_path\protobuf;C:\projects\aditof_sdk\deps\libwebsockets\build_3_2_3\local_path\websockets" -G "Visual Studio 16 2019" -DOPENSSL_INCLUDE_DIRS="C:\OpenSSL-Win64\include" -DWITH_EXAMPLES=off ..
 cmake --build . --config Release -j 4
 ```
+> NOTE: Make sure to replace the prefix path with the one from your disk.
 
 ## Building the SDK with examples
 
@@ -174,4 +176,20 @@ mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH="C:\projects\aditof-sdk\deps\glog\build_0_3_5\local_path\glog;C:\projects\aditof-sdk\deps\protobuf\build_3_9_0\local_path\protobuf;C:\projects\aditof-sdk\deps\libwebsockets\build_3_2_3\local_path\websockets;C:\projects\aditof-sdk\deps\opencv\build_4_5_0\local_path\opencv" -G "Visual Studio 16 2019" -DOPENSSL_INCLUDE_DIRS="C:\OpenSSL-Win64\include" -DWITH_EXAMPLES=on ..
 cmake --build . --target install --config Release -j 4
+```
+
+## Generate doxygen documentation
+
+Requirements:
+* Doxygen
+* Graphviz
+
+In order to generate the doxygen documentation you must compile the sdk in the following way:
+```console
+cmake -DCMAKE_PREFIX_PATH="C:\projects\aditof-sdk\deps\glog\build_0_3_5\local_path\glog;C:\projects\aditof-sdk\deps\protobuf\build_3_9_0\local_path\protobuf;C:\projects\aditof-sdk\deps\libwebsockets\build_3_1\local_path\websockets;C:\projects\aditof-sdk\opencv\build" -G "Visual Studio 16 2019" -DOPENSSL_INCLUDE_DIRS="C:\OpenSSL-Win64\include" -DWITH_DOC=on ..
+cmake --build . --target doc -j 4
+```
+After compilation, the documentation can be found at this path:
+```console
+build\doc\doxygen_doc\html\index.html
 ```

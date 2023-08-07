@@ -33,8 +33,8 @@
 
 struct UsbDepthSensor::ImplData {};
 
-UsbDepthSensor::UsbDepthSensor(
-    const aditof::DeviceConstructionData & /*data*/) {}
+UsbDepthSensor::UsbDepthSensor(const std::string &driverPath)
+    : m_driverPath(driverPath), m_implData(new UsbDepthSensor::ImplData) {}
 
 UsbDepthSensor::~UsbDepthSensor() = default;
 
@@ -94,7 +94,8 @@ aditof::Status UsbDepthSensor::program(const uint8_t *firmware, size_t size) {
     return status;
 }
 
-aditof::Status UsbDepthSensor::getFrame(uint16_t *buffer) {
+aditof::Status UsbDepthSensor::getFrame(uint16_t *buffer,
+                                        aditof::BufferInfo *bufferInfo) {
     using namespace aditof;
     Status status = Status::OK;
 
@@ -116,24 +117,6 @@ aditof::Status UsbDepthSensor::readAfeRegisters(const uint16_t *address,
 aditof::Status UsbDepthSensor::writeAfeRegisters(const uint16_t *address,
                                                  const uint16_t *data,
                                                  size_t length) {
-    using namespace aditof;
-    Status status = Status::OK;
-
-    // TO DO
-
-    return status;
-}
-
-aditof::Status UsbDepthSensor::readAfeTemp(float &temperature) {
-    using namespace aditof;
-    Status status = Status::OK;
-
-    // TO DO
-
-    return status;
-}
-
-aditof::Status UsbDepthSensor::readLaserTemp(float &temperature) {
     using namespace aditof;
     Status status = Status::OK;
 

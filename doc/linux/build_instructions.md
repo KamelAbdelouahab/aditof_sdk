@@ -21,7 +21,7 @@ sudo apt install cmake
 
 * Glog:
 ```console
-git clone --branch v0.3.5 --depth 1 https://github.com/google/glog
+git clone --branch v0.6.0 --depth 1 https://github.com/google/glog
 cd glog
 mkdir build_0_3_5 && cd build_0_3_5
 cmake -DWITH_GFLAGS=off -DCMAKE_INSTALL_PREFIX=/opt/glog ..
@@ -108,4 +108,24 @@ mkdir build
 cd build
 cmake -DCMAKE_PREFIX_PATH="/opt/glog;/opt/protobuf;/opt/websockets;/opt/opencv" -DWITH_EXAMPLES=on ..
 make -j4
+```
+
+## Generate doxygen documentation
+
+Requirements:
+* Doxygen
+* Graphviz
+
+```console
+sudo apt-get install doxygen graphviz
+```
+
+In order to generate the doxygen documentation you must compile the sdk in the following way:
+```console
+cmake -DCMAKE_PREFIX_PATH="/opt/glog;/opt/protobuf;/opt/websockets;/opt/opencv" -DWITH_DOC=on ..
+make -j4 doc
+```
+After compilation, the documentation can be found at this path:
+```console
+build/doc/doxygen_doc/html/index.html
 ```
