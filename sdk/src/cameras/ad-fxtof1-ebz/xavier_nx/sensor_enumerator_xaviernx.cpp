@@ -56,6 +56,7 @@ Status findDevicePathsAtMedia(std::string &dev_name, std::string &subdev_name) {
     /* Checking for available devices */
     char cmdDev[96];
     sprintf(cmdDev, "v4l2-ctl --list-devices | grep addi9036 -A 2 | sed '1d'");
+    LOG(WARNING) << cmdDev << "ICIII";
     FILE *fp = popen(cmdDev, "r");
     if (!fp) {
         LOG(WARNING) << "Error running v4l2-ctl";
@@ -71,6 +72,8 @@ Status findDevicePathsAtMedia(std::string &dev_name, std::string &subdev_name) {
     pclose(fp);
     std::string strDev(buf);
     free(buf);
+
+    LOG(WARNING) << "I MADE IT HERE !!!!";
     std::regex e{R"(\/dev\/video\d)"};
     std::sregex_iterator devIter(strDev.begin(), strDev.end(), e);
     std::sregex_iterator end;
@@ -134,26 +137,11 @@ Status findDevicePathsAtMedia(std::string &dev_name, std::string &subdev_name) {
 
 Status TargetSensorEnumerator::searchSensors() {
 
-    Status status = Status::OK;
     LOG(INFO) << "Looking for devices on the target: Xavier NX";
-
     SensorInfo sInfo;
-    sInfo.sensorType = SensorType::SENSOR_ADDI9036;
-    std::string devPath;
-    std::string subdevPath;
 
-    status = findDevicePathsAtMedia(devPath, subdevPath);
-    if (status != Status::OK) {
-        LOG(WARNING) << "failed to find device paths";
-        return status;
-    }
-
-    if (devPath.empty() || subdevPath.empty()) {
-        return Status::GENERIC_ERROR;
-    }
-
-    sInfo.driverPath = devPath;
-    sInfo.subDevPath = subdevPath;
+    sInfo.driverPath = DRIVER_PATH;
+    sInfo.subDevPath = SUBDEV_PATH;
     sInfo.sensorType = SensorType::SENSOR_ADDI9036;
     sInfo.captureDev = CAPTURE_DEVICE_NAME;
     m_sensorsInfo.emplace_back(sInfo);
@@ -163,6 +151,8 @@ Status TargetSensorEnumerator::searchSensors() {
     eepromInfo.driverPath = EEPROM_DEV_PATH;
     m_storagesInfo.emplace_back(eepromInfo);
 
+    LOG(INFO) << "Camera paths: " << sInfo.driverPath << " - " << sInfo.subDevPath;
+    LOG(INFO) << "EEPROM paths: " << eepromInfo.driverName << " - " << eepromInfo.driverPath;
     TemperatureSensorInfo temperatureSensorsInfo;
     temperatureSensorsInfo.sensorType = TempSensorType::SENSOR_TMP10X;
     temperatureSensorsInfo.driverPath = TEMP_SENSOR_DEV_PATH;
