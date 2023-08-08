@@ -1,6 +1,21 @@
 # allow read/write access to the eeprom and the temperature sensor for Xavier
 
 SUBSYSTEM=="i2c", 
-RUN+="/bin/chown root:plugdev /sys/bus/i2c/devices/1-0056/eeprom", 
-RUN+="/bin/chmod 0060 /sys/bus/i2c/devices/1-0056/eeprom",
-RUN+="/bin/chmod 666 /dev/i2c-1"
+RUN+="/bin/chown tegra:tegra /sys/bus/i2c/devices/30-0056/eeprom",
+RUN+="/bin/chown tegra:tegra /sys/bus/i2c/devices/31-0056/eeprom",
+RUN+="/bin/chown tegra:tegra /sys/bus/i2c/devices/32-0056/eeprom",
+RUN+="/bin/chown tegra:tegra /sys/bus/i2c/devices/33-0056/eeprom",
+RUN+="/bin/chmod 0640 /sys/bus/i2c/devices/30-0056/eeprom",
+RUN+="/bin/chmod 0640 /sys/bus/i2c/devices/31-0056/eeprom",
+RUN+="/bin/chmod 0640 /sys/bus/i2c/devices/32-0056/eeprom",
+RUN+="/bin/chmod 0640 /sys/bus/i2c/devices/33-0056/eeprom",
+RUN+="/bin/chmod 666 /dev/i2c-30"
+RUN+="/bin/chmod 666 /dev/i2c-31"
+RUN+="/bin/chmod 666 /dev/i2c-32"
+RUN+="/bin/chmod 666 /dev/i2c-33"
+RUN+="/bin/chmod 666 /dev/i2c-34"
+RUN+="/bin/chmod 666 /dev/i2c-35"
+RUN+="/bin/chmod 666 /dev/i2c-36"
+RUN+="/bin/chmod 666 /dev/i2c-37"
+
+
