@@ -37,6 +37,11 @@
 #include "connections/target/rgbd_sensor.h"
 #include "connections/target/tmp10x_sensor.h"
 #include <algorithm>
+#ifndef JS_BINDINGS
+#include <glog/logging.h>
+#else
+#include <aditof/log_cout.h>
+#endif
 
 using namespace aditof;
 using namespace std;

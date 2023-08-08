@@ -45,14 +45,18 @@ AdiTofDemoController::AdiTofDemoController()
       m_recorder(new AditofDemoRecorder()) {}
 
 bool AdiTofDemoController::setRegularConnection() {
+    LOG(INFO) << "Init with  " << m_cameras.size() << " Cameras";
     m_system.getCameraList(m_cameras);
     m_IsNetworkConnection = false;
+    LOG(INFO) << "Found " << m_cameras.size() << " Cameras";
     if (m_cameras.size()) {
-        // Use the first camera that is found
-        m_cameraInUse = 0;
+        // Use the second camera that is found
+        m_cameraInUse = 2;
         auto camera = m_cameras[static_cast<unsigned int>(m_cameraInUse)];
+        LOG(INFO) << "Launching camera " << m_cameraInUse;
 
         camera->initialize();
+        LOG(INFO) << "Initialized cam";
 
         std::vector<std::string> frameTypes;
         camera->getAvailableFrameTypes(frameTypes);

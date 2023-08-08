@@ -110,7 +110,6 @@ buildCamera(std::unique_ptr<SensorEnumeratorInterface> enumerator) {
                                             temperatureSensors);
 #endif
 #endif // #ifndef TARGET
-
     return camera;
 }
 
@@ -149,8 +148,18 @@ Status SystemImpl::getCameraList(
     }
     Status status = sensorEnumerator->searchSensors();
     if (status == Status::OK) {
-        auto camera = buildCamera(std::move(sensorEnumerator));
-        if (camera) {
+        std::vector<std::shared_ptr<DepthSensorInterface>> depthSensors;
+        std::vector<std::shared_ptr<StorageInterface>> storages;
+        std::vector<std::shared_ptr<TemperatureSensorInterface>> temperatureSensors;
+        std::shared_ptr<Camera> camera;
+        CameraType cameraType;           
+        sensorEnumerator->getDepthSensors(depthSensors);
+        sensorEnumerator->getStorages(storages);
+        sensorEnumerator->getTemperatureSensors(temperatureSensors);
+        sensorEnumerator->getCameraTypeOnTarget(cameraType);
+
+        for (uint8_t camera_id=0; camera_id<depthSensors.size(); camera_id++){
+            camera = std::make_shared<CameraFxTof1>(depthSensors[camera_id], storages, temperatureSensors);
             cameraList.emplace_back(camera);
         }
     }

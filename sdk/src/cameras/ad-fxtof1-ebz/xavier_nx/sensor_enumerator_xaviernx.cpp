@@ -50,118 +50,33 @@
 
 using namespace aditof;
 
-Status findDevicePathsAtMedia(std::string &dev_name, std::string &subdev_name) {
-    using namespace aditof;
-    using namespace std;
-
-    //DevPaths
-    char *buf;
-    int size = 0;
-    /* Checking for available devices */
-    char cmdDev[96];
-    sprintf(cmdDev, "v4l2-ctl --list-devices | grep addi9036 -A 2 | sed '1d'");
-    LOG(WARNING) << cmdDev << "ICIII";
-    FILE *fp = popen(cmdDev, "r");
-    if (!fp) {
-        LOG(WARNING) << "Error running v4l2-ctl";
-        return Status::GENERIC_ERROR;
-    }
-
-    /* Read the media-ctl output stream */
-    buf = (char *)malloc(128 * 1024);
-    while (!feof(fp)) {
-        fread(&buf[size], 1, 1, fp);
-        size++;
-    }
-    pclose(fp);
-    std::string strDev(buf);
-    free(buf);
-
-    LOG(WARNING) << "I MADE IT HERE !!!!";
-    std::regex e{R"(\/dev\/video\d)"};
-    std::sregex_iterator devIter(strDev.begin(), strDev.end(), e);
-    std::sregex_iterator end;
-    int nrOfDevPaths = 0;
-    while (devIter != end) {
-        for (unsigned i = 0; i < devIter->size(); ++i) {
-            if (nrOfDevPaths == 0)
-                dev_name.append((*devIter)[i]);
-            else {
-                dev_name.append(std::string("|"));
-                dev_name.append((*devIter)[i]);
-            }
-        }
-        ++devIter;
-        nrOfDevPaths++;
-    }
-
-    //SubDevPaths
-    char *subDevBuf;
-    int subDevSize = 0;
-    /* Checking for available devices */
-    char cmdSubDev[2500];
-    sprintf(cmdSubDev, "media-ctl -p");
-    FILE *subDevFp = popen(cmdSubDev, "r");
-    if (!subDevFp) {
-        LOG(WARNING) << "Error running media-ctl";
-        return Status::GENERIC_ERROR;
-    }
-
-    /* Read the media-ctl output stream */
-    subDevBuf = (char *)malloc(2500 * sizeof(char));
-    while (!feof(subDevFp)) {
-        fread(&subDevBuf[subDevSize], 1, 1, subDevFp);
-        subDevSize++;
-    }
-    pclose(subDevFp);
-    std::string strSubDev(subDevBuf);
-    free(subDevBuf);
-    std::regex subE{R"(- entity [\d]+: addi9036[a-zA-Z0-9_.+\-([,)\n /]+)"};
-    std::sregex_iterator subDevIter(strSubDev.begin(), strSubDev.end(), subE);
-    int nrOfSubDevPaths = 0;
-    while (subDevIter != end) {
-        for (unsigned i = 0; i < subDevIter->size(); ++i) {
-            std::string tmp = (*subDevIter)[i];
-            std::regex subsubE{R"(/dev/v[0-9]+l-subdev[0-9]+\b)"};
-            std::sregex_iterator subSubDevIter(tmp.begin(), tmp.end(), subsubE);
-            while (subSubDevIter != end) {
-                for (unsigned j = 0; j < subSubDevIter->size(); ++j) {
-                    if (nrOfSubDevPaths >= 1)
-                        subdev_name.append("|");
-                    subdev_name.append((*subSubDevIter)[j]);
-                }
-                ++subSubDevIter;
-            }
-        }
-        ++subDevIter;
-        nrOfSubDevPaths++;
-    }
-    return Status::OK;
-}
-
 Status TargetSensorEnumerator::searchSensors() {
 
     LOG(INFO) << "Looking for devices on the target: Xavier NX";
-    SensorInfo sInfo;
+    for (int i=0; i<NUM_CAMERAS; i++){
 
-    sInfo.driverPath = DRIVER_PATH;
-    sInfo.subDevPath = SUBDEV_PATH;
-    sInfo.sensorType = SensorType::SENSOR_ADDI9036;
-    sInfo.captureDev = CAPTURE_DEVICE_NAME;
-    m_sensorsInfo.emplace_back(sInfo);
+        SensorInfo sInfo;
+    
+        sInfo.driverPath = DRIVER_PATH[i];
+        sInfo.subDevPath = SUBDEV_PATH[i];
+        sInfo.captureDev = CAPTURE_DEVICE_NAME[i];
+        sInfo.sensorType = SensorType::SENSOR_ADDI9036;
+        m_sensorsInfo.emplace_back(sInfo);
+    
+        StorageInfo eepromInfo;
+        eepromInfo.driverName = EEPROM_NAME;
+        eepromInfo.driverPath = EEPROM_DEV_PATH[i];
+        m_storagesInfo.emplace_back(eepromInfo);
+    
+        TemperatureSensorInfo temperatureSensorsInfo;
+        temperatureSensorsInfo.sensorType = TempSensorType::SENSOR_TMP10X;
+        temperatureSensorsInfo.driverPath = TEMP_SENSOR_DEV_PATH[i];
+        temperatureSensorsInfo.name = TEMPERATURE_SENSOR_NAME;
+        m_temperatureSensorsInfo.emplace_back(temperatureSensorsInfo);
 
-    StorageInfo eepromInfo;
-    eepromInfo.driverName = EEPROM_NAME;
-    eepromInfo.driverPath = EEPROM_DEV_PATH;
-    m_storagesInfo.emplace_back(eepromInfo);
+        LOG(INFO) << "Added Camera " << i << ": Device: " << sInfo.driverPath << " - EEPROM: " << eepromInfo.driverPath;
 
-    LOG(INFO) << "Camera paths: " << sInfo.driverPath << " - " << sInfo.subDevPath;
-    LOG(INFO) << "EEPROM paths: " << eepromInfo.driverName << " - " << eepromInfo.driverPath;
-    TemperatureSensorInfo temperatureSensorsInfo;
-    temperatureSensorsInfo.sensorType = TempSensorType::SENSOR_TMP10X;
-    temperatureSensorsInfo.driverPath = TEMP_SENSOR_DEV_PATH;
-    temperatureSensorsInfo.name = TEMPERATURE_SENSOR_NAME;
-    m_temperatureSensorsInfo.emplace_back(temperatureSensorsInfo);
+    }
 
     return Status::OK;
 }
