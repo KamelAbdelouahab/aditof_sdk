@@ -51,7 +51,7 @@ bool AdiTofDemoController::setRegularConnection() {
     LOG(INFO) << "Found " << m_cameras.size() << " Cameras";
     if (m_cameras.size()) {
         // Use the second camera that is found
-        m_cameraInUse = 2;
+        m_cameraInUse = 0;
         auto camera = m_cameras[static_cast<unsigned int>(m_cameraInUse)];
         LOG(INFO) << "Launching camera " << m_cameraInUse;
 

@@ -186,6 +186,10 @@ aditof::Status Addi9036Sensor::open() {
         cardName = cards.at(i).c_str();
         dev = &m_implData->videoDevs[i];
 
+        LOG(INFO) << "devName: "    << devName;
+        LOG(INFO) << "subDevName: " << subDevName;
+        LOG(INFO) << "cardName: "   << cardName;
+
         /* Open V4L2 device */
         if (stat(devName, &st) == -1) {
             LOG(WARNING) << "Cannot identify " << devName << "errno: " << errno
