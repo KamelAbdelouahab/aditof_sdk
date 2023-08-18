@@ -4,3 +4,6 @@ sdk/include/aditof/version.h
 
 *.temp/
 .vscode*
+
+# Camera data
+*.bin
