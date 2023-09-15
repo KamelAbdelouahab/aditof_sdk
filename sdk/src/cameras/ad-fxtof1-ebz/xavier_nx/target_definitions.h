@@ -63,12 +63,16 @@
 
 static const int  NUM_CAMERAS = 4;
 
-static const char *EEPROM_DEV_PATH[NUM_CAMERAS]      // One of my FXTOFs has tricky eeprom. Using EEPROM at 31 
-    = {"/sys/bus/i2c/devices/30-0056/eeprom",
+static const char *EEPROM_DEV_PATH[NUM_CAMERAS]  
+    // = {"/home/tegra/repo/aditof_sdk/camera_data/cam0.bin",
+    //    "/home/tegra/repo/aditof_sdk/camera_data/cam1.bin",
+    //    "/home/tegra/repo/aditof_sdk/camera_data/cam2.bin",
+    //    "/home/tegra/repo/aditof_sdk/camera_data/cam3.bin"};
+    = {"/sys/bus/i2c/devices/31-0056/eeprom",
        "/sys/bus/i2c/devices/31-0056/eeprom",
-       "/sys/bus/i2c/devices/32-0056/eeprom",
-       "/sys/bus/i2c/devices/33-0056/eeprom"};
-   
+       "/sys/bus/i2c/devices/31-0056/eeprom",
+       "/sys/bus/i2c/devices/31-0056/eeprom"};
+
 static const char *TEMP_SENSOR_DEV_PATH[NUM_CAMERAS] // One of my FXTOFs has tricky temp sensor. Using only a single device
     = {"/sys/class/hwmon/hwmon1/temp1_input",
        "/sys/class/hwmon/hwmon1/temp1_input",

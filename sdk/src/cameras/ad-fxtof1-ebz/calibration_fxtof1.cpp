@@ -245,7 +245,7 @@ aditof::Status CalibrationFxTof1::getIntrinsic(float key,
 
     if (!validParam || !m_cal_valid) {
         LOG(WARNING) << "Invalid intrinsic " << std::to_string(key).c_str();
-        return Status::INVALID_ARGUMENT;
+        //return Status::INVALID_ARGUMENT;
     }
 
     if (key == INTRINSIC) {
@@ -303,8 +303,8 @@ aditof::Status CalibrationFxTof1::setMode(
                   << "    fy: " << cameraMatrix[4] << "\n"
                   << "    cx: " << cameraMatrix[2] << "\n"
                   << "    cy: " << cameraMatrix[5];
-        buildGeometryCalibrationCache(cameraMatrix, frameWidth, frameHeight);
     }
+    buildGeometryCalibrationCache(cameraMatrix, frameWidth, frameHeight);
 
     status = getIntrinsic(DISTORTION_COEFFICIENTS, distortionCoeffs);
     if (status != Status::OK) {

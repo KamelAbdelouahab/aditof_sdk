@@ -88,10 +88,10 @@ if __name__ == "__main__":
             depth_raw[c, ...] = np.array(frame[c].getData(tof.FrameDataType.Depth), dtype="uint16", copy=False)
         
         #depth = depth_raw.transpose(2,0,1).reshape(num_cam,-1)
-        depth[0:height,        0:width]       = depth_raw[0, :, :]
+        depth[0:height,        0:width]       = cv2.flip(depth_raw[0, :, :], 0)
         depth[height:2*height, 0:width]       = cv2.flip(depth_raw[1, :, :], 0)
         depth[0:height,        width:2*width] = cv2.flip(depth_raw[2, :, :], 0)
-        depth[height:2*height, width:2*width] = depth_raw[3, :, :]
+        depth[height:2*height, width:2*width] = cv2.flip(depth_raw[3, :, :], 0)
        
         # # Post process NIR
         # nir_raw   = cv2.vconcat([nir_raw1, nir_raw2])
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                 
         # Send to H264 Pipeline
         out_writer.write(depth_color)
-        time.sleep(0.1)
+        #time.sleep(0.1)
         
     out_writer.release()
     print("Done !") 
