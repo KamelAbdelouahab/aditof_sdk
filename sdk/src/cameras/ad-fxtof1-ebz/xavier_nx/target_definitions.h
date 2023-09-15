@@ -71,13 +71,13 @@ static const char *EEPROM_DEV_PATH[NUM_CAMERAS]
     = {"/sys/bus/i2c/devices/31-0056/eeprom",
        "/sys/bus/i2c/devices/31-0056/eeprom",
        "/sys/bus/i2c/devices/31-0056/eeprom",
-       "/sys/bus/i2c/devices/31-0056/eeprom"};
+       "/sys/bus/i2c/devices/33-0056/eeprom"};
 
 static const char *TEMP_SENSOR_DEV_PATH[NUM_CAMERAS] // One of my FXTOFs has tricky temp sensor. Using only a single device
-    = {"/sys/class/hwmon/hwmon1/temp1_input",
+    = {"/sys/class/hwmon/hwmon0/temp1_input",
        "/sys/class/hwmon/hwmon1/temp1_input",
-       "/sys/class/hwmon/hwmon1/temp1_input",
-       "/sys/class/hwmon/hwmon1/temp1_input"};
+       "/sys/class/hwmon/hwmon2/temp1_input",
+       "/sys/class/hwmon/hwmon3/temp1_input"};
 
 static const char *CAPTURE_DEVICE_NAME[NUM_CAMERAS]  
     = {"vi-output, addi9036 30-0064|vi-output, addi9036 34-0064",
