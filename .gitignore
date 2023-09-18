@@ -7,3 +7,5 @@ sdk/include/aditof/version.h
 
 # Camera data
 *.bin
+
+*.pyc

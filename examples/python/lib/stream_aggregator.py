@@ -28,12 +28,12 @@ class StreamAggregator(multiprocessing.Process):
             log.debug("Got a frame")
             start = time.time()
             for i in range(self.num_queues):
-                try:
-                    self.data_out[:, i*self.width:(i+1)*self.width, :] = self.queue_in[i].get_nowait()
-                except queue.Empty:
-                    log.warning("Queue Empty")                
+                # try:
+                self.data_out[:, i*self.width:(i+1)*self.width, :] = self.queue_in[i].get()
+                # except queue.Empty:
+                #     log.warning("Queue Empty")                
             end = time.time()
-            log.info(f"Copy time = {1000*(end-start):.2f}ms")
+            log.debug(f"Copy time = {1000*(end-start):.2f}ms")
             self.queue_out.put(self.data_out)
             log.debug("Aggregated ")
         

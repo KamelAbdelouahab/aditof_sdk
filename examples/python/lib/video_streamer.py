@@ -30,16 +30,9 @@ class VideoStreamer():
     
     def run(self):
         log.info("Running ...")
-        try:
-            sample = self.queue.get_nowait()
-            log.info(f"Queue data {sample.shape[1]}x{sample.shape[0]}")
-        except queue.Empty:
-            log.warning("Queue empty")
-        while(True):
-            try: 
-                data = self.queue.get_nowait()
-                log.debug(f"FIFO get shape = {data.shape}")
-                self.out_writer.write(data)
-            except queue.Empty:
-                log.warning("Queue empty")
-            log.debug("Wrote data")
+        sample = self.queue.get()
+        log.info(f"Queue data {sample.shape[1]}x{sample.shape[0]}")
+        while(True): 
+            data = self.queue.get()
+            log.debug(f"FIFO get shape = {data.shape}")
+            self.out_writer.write(data)
