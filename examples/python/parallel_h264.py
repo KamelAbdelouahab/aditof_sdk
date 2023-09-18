@@ -45,9 +45,9 @@ if __name__ == "__main__":
     # q_aggr        = manager.Queue()
     
     # Init Camera procs
-    proc_cam1   = FxtofCam(camera=cameras[1], q=q_cam1)
+    proc_cam1   = FxtofCam(camera=cameras[1], q=q_cam1, mode='nir')
     #time.sleep(0.010)
-    proc_cam2   = FxtofCam(camera=cameras[2], q=q_cam2)
+    proc_cam2   = FxtofCam(camera=cameras[2], q=q_cam2, mode='nir')
     #proc_cam3   = FxtofCam(camera=cameras[3], q=q_cam3)
     
     proc_aggr   = StreamAggregator([q_cam1, q_cam2], q_aggr)
