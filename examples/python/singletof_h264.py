@@ -15,17 +15,6 @@ modes   = []
 # Encoder data
 bitrate = 8000000
 host = "10.42.0.1"
-port = 8888
-
-out_pipeline = ( "appsrc ! video/x-raw, format=BGR ! queue ! videoconvert ! video/x-raw, format=BGRx ! "
-                f" nvvidconv ! omxh264enc bitrate={bitrate} ! video/x-h264, out-format=(string)byte-out ! "
-                " h264parse ! rtph264pay pt=96 config-interval=1 ! "
-                f" udpsink host={host} port={port} sync=false ")
-
-out_writer = cv2.VideoWriter(out_pipeline, 0, 30, (width, height))
-if not out_writer.isOpened():
-    print('VideoWriter not opened')
-    exit(0)
 
 def getScalingValues(cameraDetails):
     camera_range = cameraDetails.depthParameters.maxDepth
@@ -39,8 +28,21 @@ if __name__ == "__main__":
     # Parse args
     parser = argparse.ArgumentParser(description= "FXTOF Viewer / Sma-RTy 2023")
     parser.add_argument('-c', '--cam',  help = "Camera ID. Ranges from 0 to 3", default=0, type=int)
+    parser.add_argument('-p', '--port', help = "Stream port", default="8888")
     args = parser.parse_args()
     cam_id  = args.cam
+    port    = args.port
+    
+    # Init cv2
+    out_pipeline = ( "appsrc ! video/x-raw, format=BGR ! queue ! videoconvert ! video/x-raw, format=BGRx ! "
+                    f" nvvidconv ! omxh264enc bitrate={bitrate} ! video/x-h264, out-format=(string)byte-out ! "
+                    " h264parse ! rtph264pay pt=96 config-interval=1 ! "
+                    f" udpsink host={host} port={port} sync=false ")
+
+    out_writer = cv2.VideoWriter(out_pipeline, 0, 30, (width, height))
+    if not out_writer.isOpened():
+        print('VideoWriter not opened')
+        exit(0)    
     
     # Init TOF System
     tof_system = tof.System()
